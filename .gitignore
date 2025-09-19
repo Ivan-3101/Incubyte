@@ -1,0 +1,14 @@
+# Python / FastAPI
+venv/
+__pycache__/
+*.pyc
+
+# Frontend / Node
+/sweet-shop-frontend/node_modules/
+/sweet-shop-frontend/dist/
+/sweet-shop-frontend/.env
+
+# IDE / OS files
+.vscode/
+.idea/
+.DS_Store
