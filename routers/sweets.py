@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
 import schemas, models
 from routers.auth import get_current_user, get_db, get_current_admin_user
-from typing import List
+from typing import List, Optional 
 
 router = APIRouter(
     prefix="/api/sweets",
@@ -82,3 +82,24 @@ def restock_sweet(id: int, stock: schemas.InventoryUpdate, db: Session = Depends
     db.commit()
     db.refresh(sweet)
     return sweet
+
+@router.get("/search", response_model=List[schemas.Sweet])
+def search_sweets(
+    db: Session = Depends(get_db), 
+    current_user: models.User = Depends(get_current_user),
+    name: Optional[str] = None,
+    category: Optional[str] = None,
+    min_price: Optional[float] = None,
+    max_price: Optional[float] = None
+):
+    query = db.query(models.Sweet)
+    if name:
+        query = query.filter(models.Sweet.name.ilike(f"%{name}%"))
+    if category:
+        query = query.filter(models.Sweet.category.ilike(f"%{category}%"))
+    if min_price is not None:
+        query = query.filter(models.Sweet.price >= min_price)
+    if max_price is not None:
+        query = query.filter(models.Sweet.price <= max_price)
+    
+    return query.all()

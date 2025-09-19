@@ -36,3 +36,14 @@ class Sweet(SweetBase):
 
 class InventoryUpdate(BaseModel):
     amount: int
+
+
+# schemas.py
+# ... (keep existing classes)
+
+class User(BaseModel):
+    id: int
+    email: EmailStr
+    is_admin: bool
+
+    model_config = ConfigDict(from_attributes=True)
