@@ -1,14 +1,28 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware # <-- Import this
 import models
 from database import engine
-from routers import auth, sweets # Import the new router
+from routers import auth, sweets
 
-# This command tells SQLAlchemy to create all the tables
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-# Include the authentication router
+# --- Add this CORS middleware section ---
+origins = [
+    "http://localhost:5173", # The origin of your React app
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"], # Allow all methods
+    allow_headers=["*"], # Allow all headers
+)
+# -----------------------------------------
+
+# Include the routers
 app.include_router(auth.router)
 app.include_router(sweets.router)
 
