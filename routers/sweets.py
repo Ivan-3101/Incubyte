@@ -2,7 +2,7 @@
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
 import schemas, models
-from routers.auth import get_current_user, get_db
+from routers.auth import get_current_user, get_db, get_current_admin_user
 from typing import List
 
 router = APIRouter(
@@ -39,3 +39,16 @@ def update_sweet(id: int, updated_sweet: schemas.SweetCreate, db: Session = Depe
     db.commit()
     
     return sweet_query.first()
+
+@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_sweet(id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_admin_user)):
+    sweet_query = db.query(models.Sweet).filter(models.Sweet.id == id)
+    sweet = sweet_query.first()
+    
+    if sweet is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Sweet not found")
+        
+    db.delete(sweet)
+    db.commit()
+    
+    return
