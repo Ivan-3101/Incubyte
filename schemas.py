@@ -34,3 +34,5 @@ class Sweet(SweetBase):
 
     model_config = ConfigDict(from_attributes=True)
 
+class InventoryUpdate(BaseModel):
+    amount: int

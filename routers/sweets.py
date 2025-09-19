@@ -52,3 +52,33 @@ def delete_sweet(id: int, db: Session = Depends(get_db), current_user: models.Us
     db.commit()
     
     return
+
+# routers/sweets.py
+# ... (keep all existing imports and endpoints) ...
+
+@router.post("/{id}/purchase", response_model=schemas.Sweet)
+def purchase_sweet(id: int, order: schemas.InventoryUpdate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    sweet = db.query(models.Sweet).filter(models.Sweet.id == id).first()
+    
+    if sweet is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Sweet not found")
+        
+    if sweet.quantity < order.amount:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Not enough stock to complete purchase")
+        
+    sweet.quantity -= order.amount
+    db.commit()
+    db.refresh(sweet)
+    return sweet
+
+@router.post("/{id}/restock", response_model=schemas.Sweet)
+def restock_sweet(id: int, stock: schemas.InventoryUpdate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_admin_user)):
+    sweet = db.query(models.Sweet).filter(models.Sweet.id == id).first()
+    
+    if sweet is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Sweet not found")
+        
+    sweet.quantity += stock.amount
+    db.commit()
+    db.refresh(sweet)
+    return sweet
