@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware # <-- Import this
+from fastapi.middleware.cors import CORSMiddleware
 import models
 from database import engine
 from routers import auth, sweets
@@ -8,9 +8,9 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-# --- Add this CORS middleware section ---
+# CORS middleware section ---
 origins = [
-    "http://localhost:5173", # The origin of your React app
+    "http://localhost:5173", # The origin of my React app
 ]
 
 app.add_middleware(

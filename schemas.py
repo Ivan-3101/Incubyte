@@ -13,9 +13,6 @@ class UserOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-# schemas.py
-# ... (keep existing classes)
-
 class Token(BaseModel):
     access_token: str
     token_type: str
@@ -37,9 +34,6 @@ class Sweet(SweetBase):
 class InventoryUpdate(BaseModel):
     amount: int
 
-
-# schemas.py
-# ... (keep existing classes)
 
 class User(BaseModel):
     id: int

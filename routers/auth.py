@@ -12,7 +12,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
 
 # --- JWT CONFIGURATION ---
-# YOU MUST CREATE THIS KEY. Run `openssl rand -hex 32` in your terminal to generate one.
+# CREATED THIS KEY. python -c "import secrets; print(secrets.token_hex(32))"
 SECRET_KEY = "f1814c24079ae7210bf52ccb4cfff880af19eb6da902a3441cd89a97a9b96f2e" 
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
@@ -105,8 +105,6 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
     
     return {"access_token": access_token, "token_type": "bearer"}
 
-# routers/auth.py
-# ... (keep existing imports and code)
 
 @router.get("/me", response_model=schemas.User)
 def read_users_me(current_user: models.User = Depends(get_current_user)):

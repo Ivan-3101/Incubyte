@@ -53,8 +53,6 @@ def delete_sweet(id: int, db: Session = Depends(get_db), current_user: models.Us
     
     return
 
-# routers/sweets.py
-# ... (keep all existing imports and endpoints) ...
 
 @router.post("/{id}/purchase", response_model=schemas.Sweet)
 def purchase_sweet(id: int, order: schemas.InventoryUpdate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):

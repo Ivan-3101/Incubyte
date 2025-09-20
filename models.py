@@ -9,7 +9,7 @@ class Sweet(Base):
     name = Column(String, index=True)
     category = Column(String, index=True)
     price = Column(Float)
-    quantity = Column(Integer) # This is the quantity in stock [cite: 24]
+    quantity = Column(Integer) 
 
 class User(Base):
     __tablename__ = "users"
