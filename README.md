@@ -5,7 +5,14 @@ This is a full-stack web application for managing a sweet shop's inventory and s
 The backend is a robust RESTful API built with Python and FastAPI, featuring JWT-based authentication and role-based permissions. The frontend is a dynamic single-page application built with React, providing a seamless user experience for both customers and administrators.
 
 ---
+## Technology Stack
 
+* **Backend**: Python (FastAPI)
+* **Database**: PostgreSQL
+* **Frontend**: React (Vite)
+* **Styling**: Custom CSS
+
+---
 ## Screenshots
 
 **Home Page**
@@ -24,14 +31,7 @@ The backend is a robust RESTful API built with Python and FastAPI, featuring JWT
 
 ---
 
-## Technology Stack
 
-* **Backend**: Python (FastAPI)
-* **Database**: PostgreSQL
-* **Frontend**: React (Vite)
-* **Styling**: Custom CSS
-
----
 
 ## Setup and Run Instructions
 
