@@ -11,6 +11,8 @@ app = FastAPI()
 # CORS middleware section ---
 origins = [
     "http://localhost:5173", # The origin of my React app
+    "https://your-live-frontend-url.vercel.app" # Deployed link
+
 ]
 
 app.add_middleware(
