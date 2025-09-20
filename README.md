@@ -28,6 +28,8 @@ The backend is a robust RESTful API built with Python and FastAPI, featuring JWT
 ![Admin Panel](screenshots/admin-dash1.png)
 ![Admin Panel](screenshots/admin-dash2.png)
 
+**Backend API Documentation**
+![Backend API Documentation](screenshots/api-docs.png)
 
 ---
 
