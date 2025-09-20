@@ -5,18 +5,39 @@ This is a full-stack web application for managing a sweet shop's inventory and s
 The backend is a robust RESTful API built with Python and FastAPI, featuring JWT-based authentication and role-based permissions. The frontend is a dynamic single-page application built with React, providing a seamless user experience for both customers and administrators.
 
 ---
+
+## 🚀 Live Demo
+
+The application is deployed and available to view here:
+
+**[https://incubyte-ivan.vercel.app/](https://incubyte-ivan.vercel.app/)**
+
+---
+
+## ✨ Features
+
+* **User Authentication**: Secure user registration and login using JWT (JSON Web Tokens).
+* **Role-Based Access Control**: A distinction between regular users and admin users, with specific actions restricted to admins.
+* **Product Management (Admin)**: A full CRUD (Create, Read, Update, Delete) interface for administrators to manage the shop's inventory of sweets.
+* **Product Catalog (User)**: A dynamic, searchable product catalog for users to view available sweets.
+* **Inventory Control**: Real-time inventory updates for purchasing and restocking items.
+* **Interactive UI**: A responsive and user-friendly interface built with React and custom CSS.
+
+---
+
 ## Technology Stack
 
 * **Backend**: Python (FastAPI)
 * **Database**: PostgreSQL
 * **Frontend**: React (Vite)
 * **Styling**: Custom CSS
+* **Deployment**: Render (Backend & DB), Vercel (Frontend)
 
 ---
+
 ## Screenshots
 
-**Home Page**
-![Home Page](screenshots/home.png)
+*(This section is ready for your images)*
 
 **Login Page**
 ![Login Page](screenshots/login.png)
@@ -26,14 +47,28 @@ The backend is a robust RESTful API built with Python and FastAPI, featuring JWT
 
 **Admin Panel**
 ![Admin Panel](screenshots/admin-dash1.png)
-![Admin Panel](screenshots/admin-dash2.png)
 
 **Backend API Documentation**
 ![Backend API Documentation](screenshots/api-docs.png)
 
 ---
 
+## API Endpoints
 
+| Method | Endpoint                       | Description                     | Protected | Admin Only |
+| :----- | :----------------------------- | :------------------------------ | :-------- | :--------- |
+| POST   | `/api/auth/register`           | Register a new user             | No        | No         |
+| POST   | `/api/auth/login`              | Log in and receive a JWT        | No        | No         |
+| GET    | `/api/auth/me`                 | Get current user details        | Yes       | No         |
+| GET    | `/api/sweets/`                 | Get a list of all sweets        | Yes       | No         |
+| POST   | `/api/sweets/`                 | Create a new sweet              | Yes       | **Yes** |
+| PUT    | `/api/sweets/{id}`             | Update an existing sweet        | Yes       | **Yes** |
+| DELETE | `/api/sweets/{id}`             | Delete a sweet                  | Yes       | **Yes** |
+| GET    | `/api/sweets/search`           | Search for sweets by criteria   | Yes       | No         |
+| POST   | `/api/sweets/{id}/purchase`    | Purchase a sweet                | Yes       | No         |
+| POST   | `/api/sweets/{id}/restock`     | Restock a sweet                 | Yes       | **Yes** |
+
+---
 
 ## Setup and Run Instructions
 
