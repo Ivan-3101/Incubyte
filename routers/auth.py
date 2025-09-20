@@ -77,7 +77,20 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     
     # Hash the password before storing
     hashed_password = utils.hash_password(user.password)
-    new_user = models.User(email=user.email, hashed_password=hashed_password)
+    # new_user = models.User(email=user.email, hashed_password=hashed_password)
+    
+    
+    # --- ADD THIS NEW LOGIC 👇 ---
+    # Check if there are any users in the database yet
+    is_first_user = db.query(models.User).first() is None
+    
+    # Create the new user. If they are the first, make them an admin.
+    new_user = models.User(
+        email=user.email, 
+        hashed_password=hashed_password, 
+        is_admin=is_first_user
+    )
+    # --- END OF NEW LOGIC ---
     
     # Add to DB
     db.add(new_user)
