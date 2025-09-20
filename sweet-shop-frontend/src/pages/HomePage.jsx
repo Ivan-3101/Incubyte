@@ -9,50 +9,87 @@ export default function HomePage() {
   const [sweets, setSweets] = useState([]);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(false);
 
+  // Fetch sweets when user logs in or search term changes
   useEffect(() => {
     if (user) {
-      apiClient.get('/sweets/search', { params: { name: searchTerm, category: searchTerm } })
-        .then(response => setSweets(response.data))
-        .catch(err => setError('Failed to load sweets.'));
+      fetchSweets();
     }
   }, [user, searchTerm]);
+
+  const fetchSweets = async () => {
+    setLoading(true);
+    setError('');
+    
+    try {
+      let response;
+      if (searchTerm.trim() === '') {
+        // If no search term, get all sweets
+        response = await apiClient.get('/sweets');
+      } else {
+        // Make two separate API calls and combine results
+        const [nameResults, categoryResults] = await Promise.all([
+          apiClient.get('/sweets/search', { params: { name: searchTerm } }).catch(() => ({ data: [] })),
+          apiClient.get('/sweets/search', { params: { category: searchTerm } }).catch(() => ({ data: [] }))
+        ]);
+        
+        // Combine and deduplicate results
+        const combinedResults = [...nameResults.data, ...categoryResults.data];
+        const uniqueResults = combinedResults.filter((sweet, index, self) => 
+          index === self.findIndex(s => s.id === sweet.id)
+        );
+        
+        response = { data: uniqueResults };
+      }
+      setSweets(response.data);
+    } catch (err) {
+      setError('Failed to load sweets. Please try again.');
+      console.error('Error fetching sweets:', err);
+      setSweets([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const clearSearch = () => {
+    setSearchTerm('');
+  };
 
   const handlePurchase = async (sweetId) => {
     try {
       const response = await apiClient.post(`/sweets/${sweetId}/purchase`, { amount: 1 });
       const updatedSweet = response.data;
+      
+      // Update the sweet in current results
       setSweets(currentSweets =>
         currentSweets.map(sweet => sweet.id === sweetId ? updatedSweet : sweet)
       );
       
       // Show success message
-      const message = document.createElement('div');
-      message.className = 'message success';
-      message.textContent = 'Purchase successful!';
-      message.style.position = 'fixed';
-      message.style.top = '20px';
-      message.style.right = '20px';
-      message.style.zIndex = '10000';
-      document.body.appendChild(message);
-      
-      setTimeout(() => {
-        message.remove();
-      }, 3000);
+      showMessage('Purchase successful!', 'success');
     } catch (err) {
-      const message = document.createElement('div');
-      message.className = 'message error';
-      message.textContent = err.response?.data?.detail || 'Purchase failed.';
-      message.style.position = 'fixed';
-      message.style.top = '20px';
-      message.style.right = '20px';
-      message.style.zIndex = '10000';
-      document.body.appendChild(message);
-      
-      setTimeout(() => {
-        message.remove();
-      }, 3000);
+      showMessage(err.response?.data?.detail || 'Purchase failed.', 'error');
     }
+  };
+
+  const showMessage = (text, type) => {
+    const message = document.createElement('div');
+    message.className = `message ${type}`;
+    message.textContent = text;
+    message.style.position = 'fixed';
+    message.style.top = '20px';
+    message.style.right = '20px';
+    message.style.zIndex = '10000';
+    document.body.appendChild(message);
+    
+    setTimeout(() => {
+      message.remove();
+    }, 3000);
   };
   
   const handleLogout = () => {
@@ -101,53 +138,108 @@ export default function HomePage() {
         {user && (
           <>
             <section className="search-container">
-              <input
-                type="text"
-                className="search-input"
-                placeholder="Search by name or category..."
-                value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
-              />
+              <div style={{position: 'relative', maxWidth: '500px', margin: '0 auto'}}>
+                <input
+                  type="text"
+                  className="search-input"
+                  placeholder="Search by name or category..."
+                  value={searchTerm}
+                  onChange={handleSearchChange}
+                />
+                {searchTerm && (
+                  <button
+                    onClick={clearSearch}
+                    style={{
+                      position: 'absolute',
+                      right: '20px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      color: '#6c757d',
+                      cursor: 'pointer',
+                      fontSize: '1.2rem',
+                      padding: '5px'
+                    }}
+                    title="Clear search"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+              
+              {searchTerm && !loading && (
+                <p style={{marginTop: '1rem', color: '#6c757d', textAlign: 'center'}}>
+                  {sweets.length} result{sweets.length !== 1 ? 's' : ''} found for "{searchTerm}"
+                </p>
+              )}
             </section>
 
             {error && (
               <div className="message error">
                 {error}
+                <button 
+                  onClick={fetchSweets}
+                  style={{
+                    marginLeft: '10px',
+                    background: 'none',
+                    border: 'none',
+                    color: '#721c24',
+                    cursor: 'pointer',
+                    textDecoration: 'underline'
+                  }}
+                >
+                  Retry
+                </button>
               </div>
             )}
 
-            <section className="cards-grid">
-              {sweets.length > 0 ? (
-                sweets.map(sweet => (
-                  <article key={sweet.id} className="sweet-card">
-                    <div className="card-header">
-                      <h3 className="card-title">{sweet.name}</h3>
-                      <p className="card-category">{sweet.category}</p>
-                    </div>
-                    <div className="card-body">
-                      <div className="price-tag">${sweet.price.toFixed(2)}</div>
-                      <div className="stock-info">
-                        <span className={`stock-badge ${sweet.quantity > 0 ? 'in-stock' : 'out-of-stock'}`}>
-                          {sweet.quantity > 0 ? `In Stock: ${sweet.quantity}` : 'Out of Stock'}
-                        </span>
+            {loading ? (
+              <div style={{textAlign: 'center', padding: '3rem'}}>
+                <span className="loading" style={{width: '40px', height: '40px'}}></span>
+                <p style={{marginTop: '1rem', color: '#6c757d'}}>
+                  {searchTerm ? 'Searching...' : 'Loading sweets...'}
+                </p>
+              </div>
+            ) : (
+              <section className="cards-grid">
+                {sweets.length > 0 ? (
+                  sweets.map(sweet => (
+                    <article key={sweet.id} className="sweet-card">
+                      <div className="card-header">
+                        <h3 className="card-title">{sweet.name}</h3>
+                        <p className="card-category">{sweet.category}</p>
                       </div>
-                      <button 
-                        onClick={() => handlePurchase(sweet.id)} 
-                        disabled={sweet.quantity === 0}
-                        className={`btn ${sweet.quantity > 0 ? 'btn-primary' : 'btn-secondary'}`}
-                        style={{width: '100%'}}
-                      >
-                        {sweet.quantity > 0 ? 'Purchase Now' : 'Sold Out'}
-                      </button>
+                      <div className="card-body">
+                        <div className="price-tag">${sweet.price.toFixed(2)}</div>
+                        <div className="stock-info">
+                          <span className={`stock-badge ${sweet.quantity > 0 ? 'in-stock' : 'out-of-stock'}`}>
+                            {sweet.quantity > 0 ? `In Stock: ${sweet.quantity}` : 'Out of Stock'}
+                          </span>
+                        </div>
+                        <button 
+                          onClick={() => handlePurchase(sweet.id)} 
+                          disabled={sweet.quantity === 0}
+                          className={`btn ${sweet.quantity > 0 ? 'btn-primary' : 'btn-secondary'}`}
+                          style={{width: '100%'}}
+                        >
+                          {sweet.quantity > 0 ? 'Purchase Now' : 'Sold Out'}
+                        </button>
+                      </div>
+                    </article>
+                  ))
+                ) : (
+                  <div style={{gridColumn: '1 / -1', textAlign: 'center', padding: '3rem'}}>
+                    <div className="message" style={{background: '#e9ecef', color: '#495057', border: 'none'}}>
+                      {searchTerm ? 
+                        `No sweets found matching "${searchTerm}". Try a different search term.` : 
+                        'No sweets available at the moment.'
+                      }
                     </div>
-                  </article>
-                ))
-              ) : (
-                <div style={{gridColumn: '1 / -1', textAlign: 'center', color: 'white', fontSize: '1.2rem'}}>
-                  {searchTerm ? 'No sweets found matching your search.' : 'No sweets available at the moment.'}
-                </div>
-              )}
-            </section>
+                  </div>
+                )}
+              </section>
+            )}
           </>
         )}
       </main>

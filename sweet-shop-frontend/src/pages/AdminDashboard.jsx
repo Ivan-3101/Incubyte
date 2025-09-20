@@ -8,6 +8,8 @@ export default function AdminDashboard() {
   const [sweets, setSweets] = useState([]);
   const [formData, setFormData] = useState(emptyFormState);
   const [editingId, setEditingId] = useState(null);
+  const [restockingId, setRestockingId] = useState(null);
+  const [restockAmount, setRestockAmount] = useState('');
 
   useEffect(() => {
     fetchSweets();
@@ -89,6 +91,34 @@ export default function AdminDashboard() {
         showMessage('Failed to delete sweet.', 'error');
       }
     }
+  };
+
+  const handleRestock = async (id) => {
+    const amount = parseInt(restockAmount);
+    if (!amount || amount <= 0) {
+      showMessage('Please enter a valid restock amount.', 'error');
+      return;
+    }
+
+    try {
+      await apiClient.post(`/sweets/${id}/restock`, { amount });
+      showMessage(`Successfully restocked ${amount} items!`, 'success');
+      setRestockingId(null);
+      setRestockAmount('');
+      fetchSweets();
+    } catch (error) {
+      showMessage(error.response?.data?.detail || 'Failed to restock sweet.', 'error');
+    }
+  };
+
+  const startRestock = (sweetId) => {
+    setRestockingId(sweetId);
+    setRestockAmount('');
+  };
+
+  const cancelRestock = () => {
+    setRestockingId(null);
+    setRestockAmount('');
   };
 
   const cancelEdit = () => {
@@ -187,7 +217,7 @@ export default function AdminDashboard() {
 
         <section>
           <div className="admin-header" style={{margin: '2rem 0 1rem 0'}}>
-            <h2 style={{fontSize: '2rem', color: 'white'}}>Existing Sweets</h2>
+            <h2 style={{fontSize: '2rem', color: '#2c3e50'}}>Existing Sweets</h2>
           </div>
           
           {sweets.length > 0 ? (
@@ -199,18 +229,78 @@ export default function AdminDashboard() {
                     Stock: {sweet.quantity} | Price: ${sweet.price.toFixed(2)} | Category: {sweet.category}
                   </div>
                 </div>
-                <div className="action-buttons">
-                  <button className="btn-edit" onClick={() => handleEdit(sweet)}>
-                    Edit
-                  </button>
-                  <button className="btn-delete" onClick={() => handleDelete(sweet.id)}>
-                    Delete
-                  </button>
-                </div>
+
+                {restockingId === sweet.id ? (
+                  // Restock mode
+                  <div className="action-buttons" style={{alignItems: 'center', gap: '0.5rem'}}>
+                    <input
+                      type="number"
+                      placeholder="Amount"
+                      value={restockAmount}
+                      onChange={(e) => setRestockAmount(e.target.value)}
+                      style={{
+                        padding: '0.5rem',
+                        border: '2px solid #4ecdc4',
+                        borderRadius: '6px',
+                        width: '80px',
+                        fontSize: '0.9rem'
+                      }}
+                      min="1"
+                    />
+                    <button 
+                      className="btn-edit" 
+                      onClick={() => handleRestock(sweet.id)}
+                      style={{padding: '0.5rem 0.8rem'}}
+                    >
+                      Add
+                    </button>
+                    <button 
+                      className="btn-delete" 
+                      onClick={cancelRestock}
+                      style={{padding: '0.5rem 0.8rem'}}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  // Normal mode
+                  <div className="action-buttons">
+                    <button className="btn-edit" onClick={() => handleEdit(sweet)}>
+                      Edit
+                    </button>
+                    <button 
+                      className="btn-restock"
+                      onClick={() => startRestock(sweet.id)}
+                      style={{
+                        background: '#28a745',
+                        color: 'white',
+                        padding: '0.6rem 1.2rem',
+                        border: 'none',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        fontWeight: '600',
+                        transition: 'all 0.3s ease'
+                      }}
+                      onMouseOver={(e) => {
+                        e.target.style.background = '#218838';
+                        e.target.style.transform = 'scale(1.05)';
+                      }}
+                      onMouseOut={(e) => {
+                        e.target.style.background = '#28a745';
+                        e.target.style.transform = 'scale(1)';
+                      }}
+                    >
+                      Restock
+                    </button>
+                    <button className="btn-delete" onClick={() => handleDelete(sweet.id)}>
+                      Delete
+                    </button>
+                  </div>
+                )}
               </div>
             ))
           ) : (
-            <div className="message" style={{background: 'rgba(255, 255, 255, 0.1)', color: 'white'}}>
+            <div className="message" style={{background: '#e9ecef', color: '#495057', border: 'none'}}>
               No sweets in inventory. Add some above!
             </div>
           )}
