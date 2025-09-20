@@ -1,11 +1,11 @@
 // src/pages/LoginPage.jsx
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext'; // Import useAuth
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { login } = useAuth(); // Get the login function from context
+  const { login } = useAuth();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -13,7 +13,7 @@ export default function LoginPage() {
     const password = event.target.password.value;
 
     try {
-      await login(email, password); // Use the context login function
+      await login(email, password);
       alert('Login successful!');
       navigate('/');
     } catch (error) {
@@ -22,21 +22,25 @@ export default function LoginPage() {
     }
   };
 
-  // ... keep the return (...) JSX the same
   return (
-    <div>
-      <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Email:</label>
-          <input type="email" name="email" required />
-        </div>
-        <div>
-          <label>Password:</label>
-          <input type="password" name="password" required />
-        </div>
-        <button type="submit">Login</button>
-      </form>
-    </div>
+    <main className="container" style={{ maxWidth: '500px', margin: '5rem auto' }}>
+      <article>
+        <h2 style={{ textAlign: 'center' }}>Login</h2>
+        <form onSubmit={handleSubmit}>
+          <label htmlFor="email">
+            Email:
+            <input type="email" name="email" id="email" required />
+          </label>
+          <label htmlFor="password">
+            Password:
+            <input type="password" name="password" id="password" required />
+          </label>
+          <button type="submit">Login</button>
+        </form>
+        <p style={{ textAlign: 'center', marginTop: '1rem' }}>
+          Don't have an account? <Link to="/register">Register here</Link>
+        </p>
+      </article>
+    </main>
   );
 }

@@ -1,7 +1,6 @@
-// src/pages/RegisterPage.jsx
 import React from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import apiClient from '../api';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -12,29 +11,33 @@ export default function RegisterPage() {
     const password = event.target.password.value;
 
     try {
-      await axios.post('http://127.0.0.1:8000/api/auth/register', { email, password });
+      await apiClient.post('/auth/register', { email, password });
       alert('Registration successful! Please log in.');
-      navigate('/login'); // Redirect to login page after successful registration
+      navigate('/login');
     } catch (error) {
-      console.error('Registration failed:', error.response.data.detail);
       alert(`Registration failed: ${error.response.data.detail}`);
     }
   };
 
   return (
-    <div>
-      <h2>Register</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Email:</label>
-          <input type="email" name="email" required />
-        </div>
-        <div>
-          <label>Password:</label>
-          <input type="password" name="password" required />
-        </div>
-        <button type="submit">Register</button>
-      </form>
-    </div>
+    <main className="container" style={{ maxWidth: '500px', margin: '5rem auto' }}>
+      <article>
+        <h2 style={{ textAlign: 'center' }}>Register</h2>
+        <form onSubmit={handleSubmit}>
+          <label htmlFor="email">
+            Email:
+            <input type="email" name="email" id="email" required />
+          </label>
+          <label htmlFor="password">
+            Password:
+            <input type="password" name="password" id="password" required />
+          </label>
+          <button type="submit">Register</button>
+        </form>
+        <p style={{ textAlign: 'center', marginTop: '1rem' }}>
+          Already have an account? <Link to="/login">Login here</Link>
+        </p>
+      </article>
+    </main>
   );
 }
