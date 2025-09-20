@@ -9,7 +9,7 @@ The backend is a robust RESTful API built with Python and FastAPI, featuring JWT
 ## Screenshots
 
 **Home Page**
-![Home Page](Screenshots/home.png)
+![Home Page](screenshots/home.png)
 
 **Login Page**
 ![Login Page](screenshots/login.png)
